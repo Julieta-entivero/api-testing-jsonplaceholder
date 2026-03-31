@@ -1,0 +1,25 @@
+{
+  "name": "api-testing-jsonplaceholder",
+  "version": "1.0.0",
+  "description": "API test automation suite for JSONPlaceholder using Supertest, Mocha and Chai",
+  "scripts": {
+    "test": "mocha tests/**/*.test.js --timeout 10000",
+    "test:report": "mocha tests/**/*.test.js --timeout 10000 --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=test-report"
+  },
+  "keywords": [
+    "api-testing",
+    "supertest",
+    "mocha",
+    "chai",
+    "qa",
+    "automation"
+  ],
+  "author": "Julieta Entivero",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "mochawesome": "^7.1.3",
+    "supertest": "^6.3.3"
+  }
+}
