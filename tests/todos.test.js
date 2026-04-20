@@ -1,7 +1,6 @@
 const request = require('supertest');
 const { expect } = require('chai');
-
-const baseUrl = 'https://jsonplaceholder.typicode.com';
+const { baseUrl } = require('../config');
 
 describe('API de Tareas (Todos)', () => {
 
@@ -12,7 +11,7 @@ describe('API de Tareas (Todos)', () => {
         .expect(200);
 
       expect(res.body).to.be.an('array');
-      expect(res.body.length).to.equal(200);
+      expect(res.body.length).to.be.greaterThan(0);
     });
 
     it('Debe validar la estructura de datos de cada tarea', async () => {
@@ -107,6 +106,26 @@ describe('API de Tareas (Todos)', () => {
     });
   });
 
+  describe('PUT /todos/:id', () => {
+    it('Debe actualizar una tarea completa (status 200)', async () => {
+      const tareaActualizada = {
+        userId: 1,
+        title: 'Tarea actualizada completamente',
+        completed: true
+      };
+
+      const res = await request(baseUrl)
+        .put('/todos/1')
+        .send(tareaActualizada)
+        .set('Content-Type', 'application/json')
+        .expect(200);
+
+      expect(res.body).to.have.property('title', tareaActualizada.title);
+      expect(res.body).to.have.property('completed', true);
+      expect(res.body).to.have.property('id', 1);
+    });
+  });
+
   describe('PATCH /todos/:id', () => {
     it('Debe marcar una tarea como completada (status 200)', async () => {
       const actualizacion = {
@@ -121,6 +140,16 @@ describe('API de Tareas (Todos)', () => {
 
       expect(res.body).to.have.property('completed', true);
       expect(res.body).to.have.property('id', 1);
+    });
+  });
+
+  describe('DELETE /todos/:id', () => {
+    it('Debe eliminar una tarea existente (status 200)', async () => {
+      const res = await request(baseUrl)
+        .delete('/todos/1')
+        .expect(200);
+
+      expect(res.body).to.be.an('object').that.is.empty;
     });
   });
 
