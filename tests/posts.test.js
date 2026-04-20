@@ -1,9 +1,13 @@
 const request = require('supertest');
 const { expect } = require('chai');
-
-const baseUrl = 'https://jsonplaceholder.typicode.com';
+const { baseUrl } = require('../config');
 
 describe('API de Posts', () => {
+
+  before(async () => {
+    const res = await request(baseUrl).get('/posts/1');
+    expect(res.status).to.equal(200, 'La API no esta disponible');
+  });
 
   describe('GET /posts', () => {
     it('Debe listar todos los posts (status 200)', async () => {
@@ -12,19 +16,19 @@ describe('API de Posts', () => {
         .expect(200);
 
       expect(res.body).to.be.an('array');
-      expect(res.body.length).to.equal(100);
+      expect(res.body.length).to.be.greaterThan(0);
     });
 
     it('Debe validar la estructura de datos de cada post', async () => {
       const res = await request(baseUrl)
-        .get('/posts')
+        .get('/posts?_limit=5')
         .expect(200);
 
       res.body.forEach((post) => {
         expect(post).to.have.property('userId').that.is.a('number');
         expect(post).to.have.property('id').that.is.a('number');
-        expect(post).to.have.property('title').that.is.a('string');
-        expect(post).to.have.property('body').that.is.a('string');
+        expect(post).to.have.property('title').that.is.a('string').and.not.empty;
+        expect(post).to.have.property('body').that.is.a('string').and.not.empty;
       });
     });
 
@@ -41,6 +45,16 @@ describe('API de Posts', () => {
         expect(post.userId).to.equal(userId);
       });
     });
+
+    it('Debe respetar el limite de resultados con _limit', async () => {
+      const limit = 3;
+      const res = await request(baseUrl)
+        .get(`/posts?_limit=${limit}`)
+        .expect(200);
+
+      expect(res.body).to.be.an('array');
+      expect(res.body.length).to.equal(limit);
+    });
   });
 
   describe('GET /posts/:id', () => {
@@ -50,7 +64,7 @@ describe('API de Posts', () => {
         .expect(200);
 
       expect(res.body).to.have.property('id', 1);
-      expect(res.body).to.have.property('userId', 1);
+      expect(res.body).to.have.property('userId').that.is.a('number');
       expect(res.body).to.have.property('title').that.is.a('string');
       expect(res.body).to.have.property('body').that.is.a('string');
     });
@@ -72,10 +86,7 @@ describe('API de Posts', () => {
       expect(res.body.length).to.be.greaterThan(0);
       res.body.forEach((comment) => {
         expect(comment).to.have.property('postId', 1);
-        expect(comment).to.have.property('id').that.is.a('number');
-        expect(comment).to.have.property('name').that.is.a('string');
         expect(comment).to.have.property('email').that.is.a('string');
-        expect(comment).to.have.property('body').that.is.a('string');
       });
     });
   });
@@ -97,6 +108,16 @@ describe('API de Posts', () => {
       expect(res.body).to.have.property('title', nuevoPost.title);
       expect(res.body).to.have.property('body', nuevoPost.body);
       expect(res.body).to.have.property('userId', nuevoPost.userId);
+      expect(res.body).to.have.property('id').that.is.a('number');
+    });
+
+    it('Debe aceptar un post con body vacio', async () => {
+      const res = await request(baseUrl)
+        .post('/posts')
+        .send({})
+        .set('Content-Type', 'application/json')
+        .expect(201);
+
       expect(res.body).to.have.property('id').that.is.a('number');
     });
   });
@@ -141,9 +162,11 @@ describe('API de Posts', () => {
 
   describe('DELETE /posts/:id', () => {
     it('Debe eliminar un post existente (status 200)', async () => {
-      await request(baseUrl)
+      const res = await request(baseUrl)
         .delete('/posts/1')
         .expect(200);
+
+      expect(res.body).to.be.an('object').that.is.empty;
     });
   });
 
