@@ -1,0 +1,3 @@
+timeout: 10000
+spec: tests/**/*.test.js
+recursive: true

@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "API test automation suite for JSONPlaceholder using Supertest, Mocha and Chai",
   "scripts": {
-    "test": "mocha tests/**/*.test.js --timeout 10000",
-    "test:report": "mocha tests/**/*.test.js --timeout 10000 --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=test-report"
+    "test": "mocha",
+    "test:posts": "mocha tests/posts.test.js",
+    "test:users": "mocha tests/users.test.js",
+    "test:comments": "mocha tests/comments.test.js",
+    "test:todos": "mocha tests/todos.test.js",
+    "test:report": "mocha --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=test-report"
   },
   "keywords": [
     "api-testing",
