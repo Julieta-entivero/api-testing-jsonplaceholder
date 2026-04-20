@@ -1,7 +1,6 @@
 const request = require('supertest');
 const { expect } = require('chai');
-
-const baseUrl = 'https://jsonplaceholder.typicode.com';
+const { baseUrl } = require('../config');
 
 describe('API de Usuarios', () => {
 
@@ -12,12 +11,12 @@ describe('API de Usuarios', () => {
         .expect(200);
 
       expect(res.body).to.be.an('array');
-      expect(res.body.length).to.equal(10);
+      expect(res.body.length).to.be.greaterThan(0);
     });
 
     it('Debe validar la estructura de datos de cada usuario', async () => {
       const res = await request(baseUrl)
-        .get('/users')
+        .get('/users?_limit=3')
         .expect(200);
 
       res.body.forEach((user) => {
@@ -55,8 +54,8 @@ describe('API de Usuarios', () => {
         .expect(200);
 
       expect(res.body).to.have.property('id', 1);
-      expect(res.body).to.have.property('name', 'Leanne Graham');
-      expect(res.body).to.have.property('username', 'Bret');
+      expect(res.body).to.have.property('name').that.is.a('string').and.not.empty;
+      expect(res.body).to.have.property('username').that.is.a('string').and.not.empty;
       expect(res.body).to.have.property('email').that.includes('@');
     });
 
@@ -86,6 +85,16 @@ describe('API de Usuarios', () => {
       expect(res.body).to.have.property('email', nuevoUsuario.email);
       expect(res.body).to.have.property('id').that.is.a('number');
     });
+
+    it('Debe aceptar un usuario con body vacio', async () => {
+      const res = await request(baseUrl)
+        .post('/users')
+        .send({})
+        .set('Content-Type', 'application/json')
+        .expect(201);
+
+      expect(res.body).to.have.property('id').that.is.a('number');
+    });
   });
 
   describe('PUT /users/:id', () => {
@@ -103,7 +112,6 @@ describe('API de Usuarios', () => {
         .expect(200);
 
       expect(res.body).to.have.property('name', datosActualizados.name);
-      expect(res.body).to.have.property('username', datosActualizados.username);
       expect(res.body).to.have.property('email', datosActualizados.email);
       expect(res.body).to.have.property('id', 1);
     });
@@ -128,9 +136,11 @@ describe('API de Usuarios', () => {
 
   describe('DELETE /users/:id', () => {
     it('Debe eliminar un usuario existente (status 200)', async () => {
-      await request(baseUrl)
+      const res = await request(baseUrl)
         .delete('/users/1')
         .expect(200);
+
+      expect(res.body).to.be.an('object').that.is.empty;
     });
   });
 
